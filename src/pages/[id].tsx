@@ -1,30 +1,34 @@
+import React, { useState } from "react";
+import { Provider } from "jotai";
+import Form from "../form";
+import { Button } from "../components/button";
 import { useRouter } from "next/router";
-import React from "react";
-import { useFetchTodo } from "../atoms/todos";
+import { useFetchTodo } from "../atoms/todo";
 
 const Home = () => {
   const {
     query: { id },
   } = useRouter();
 
-  const { isLoading, todo } = useFetchTodo(id?.toString());
-
-  if (isLoading) {
-    return (
-      <>
-        로딩중<div className=""></div>
-      </>
-    );
-  }
-
-  console.log(todo);
-
+  const { isLoading, todo, isFetched } = useFetchTodo(id?.toString());
+  const [isAddMode, setIsAddmode] = useState(false);
   return (
-    <div>
-      <div>{todo.title}</div>
-      <div>{todo.userId}</div>
-      <div>{todo.id}</div>
-    </div>
+    <>
+      <Button
+        onClick={() => {
+          setIsAddmode((pre) => !pre);
+        }}
+      >
+        {isAddMode ? "생성 모드" : "수정 모드"}
+      </Button>
+      {isAddMode ? (
+        <Provider>
+          <Form isAddMode={isAddMode} />
+        </Provider>
+      ) : (
+        <Form isAddMode={isAddMode} />
+      )}
+    </>
   );
 };
 
