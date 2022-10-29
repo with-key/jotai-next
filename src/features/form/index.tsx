@@ -1,18 +1,18 @@
 import React from "react";
-import { Button } from "../components/button";
-import { Flex } from "../components/flex";
-import TitleField from "../features/field/TitleField";
-import AuthorField from "../features/field/AurthorField";
-import { useRouter } from "next/router";
-import { submitAtom } from "../atoms/todo";
+import { Button } from "../../components/button";
+import { Flex } from "../../components/flex";
+import TitleField from "../field/TitleField";
+import AuthorField from "../field/AurthorField";
 import { useUpdateAtom } from "jotai/utils";
+import { addTodoAtom, useAddTodo } from "../../atoms/todo";
 
 type Props = {
   isAddMode: boolean;
 };
 
 const Form = ({ isAddMode }: Props) => {
-  const setter = useUpdateAtom(submitAtom);
+  const { mutate } = useAddTodo();
+  const submit = useUpdateAtom(addTodoAtom);
   return (
     <form
       onSubmit={(e) => {
@@ -24,7 +24,7 @@ const Form = ({ isAddMode }: Props) => {
         <AuthorField />
         <Button
           onClick={() => {
-            setter();
+            submit(mutate);
           }}
         >
           {isAddMode ? "추가" : "수정"}

@@ -3,3 +3,5 @@ export interface Todo {
   title: string;
   author: string;
 }
+
+export interface TodoDto extends Omit<Todo, "id"> {}

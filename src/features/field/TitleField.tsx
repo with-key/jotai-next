@@ -1,5 +1,4 @@
 import React from "react";
-import { useAtom } from "jotai";
 import { titleAtom } from "../../atoms/todo";
 import { Input } from "../../components/input/input";
 import { useInputString } from "../../components/input/hooks/useInput";

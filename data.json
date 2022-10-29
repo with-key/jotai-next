@@ -4,6 +4,21 @@
       "id": 1,
       "title": "json-server",
       "author": "typicode"
+    },
+    {
+      "id": 2,
+      "title": "",
+      "author": ""
+    },
+    {
+      "title": "누가 내 치즈를 옮겼을까?",
+      "author": "예상기",
+      "id": 3
+    },
+    {
+      "title": "커피",
+      "author": "메가 커피",
+      "id": 4
     }
   ],
   "comments": [
