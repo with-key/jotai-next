@@ -9,6 +9,11 @@ import {
 import { useRouter } from "next/router";
 import { Todo, TodoDto } from "../types/todo.type";
 
+type AtomMutateWithId<S, T> = [
+  UseMutateFunction<S, unknown, T, unknown>,
+  string
+];
+
 // atoms
 export const idAtom = atom<number>(0);
 export const titleAtom = atom<string>("");
@@ -17,7 +22,10 @@ export const authorAtom = atom<string>("");
 // ---- create Todo start ----
 export const addTodoAtom = atom(
   null,
-  (get, set, mutate: UseMutateFunction<void, unknown, TodoDto, unknown>) => {
+  /**
+   * UseMutateFunction <onSuccess 파라미터 타입, , mutate 파라미터 타입, ,>
+   */
+  (get, set, mutate: UseMutateFunction<number, unknown, TodoDto, unknown>) => {
     const title = get(titleAtom);
     const author = get(authorAtom);
 
@@ -31,20 +39,27 @@ export const addTodoAtom = atom(
   }
 );
 export const useAddTodo = () => {
+  const { push } = useRouter();
   const submit = useUpdateAtom(addTodoAtom);
 
-  const mutation = useMutation(async (todo: TodoDto) => {
-    const { data } = await axios.post("http://localhost:4000/posts", todo);
-    return data;
-  });
+  const mutation = useMutation(
+    async (todo: TodoDto) => {
+      const res = await axios.post("http://localhost:4000/posts", todo);
+      return res.status;
+    },
+    {
+      onSuccess: (status) => {
+        if (status === 201) {
+          return push(`/todos`);
+        }
+      },
+    }
+  );
 
   return { mutation, submit };
 };
 // ---- create Todo features ----
-export const addTodoEnable = atom((get) => {
-  // 제목이 비어있는 경우
-  // 작가가 비어있는 경우
-});
+
 // ---- create Todo end ----
 
 // ---- read Todo start ----
@@ -56,7 +71,6 @@ export const setTodoAtom = atom(null, (_, set, payload: Todo) => {
 
 export const useFetchTodo = (id: string | undefined) => {
   const setTodo = useUpdateAtom(setTodoAtom);
-
   const fetcher = async () => {
     const { data } = await axios.get(`http://localhost:4000/posts/${id}`);
     return data;
@@ -105,4 +119,29 @@ export const useUpdateTodo = () => {
 // ---- updete Todo end ----
 
 // ---- delete Todo start ----
+export const deleteTodoAtom = atom(
+  null,
+  (_get, _set, [mutate, id]: AtomMutateWithId<number, string>) => {
+    mutate(id);
+  }
+);
+
+export const useDeleteTodo = () => {
+  const { push } = useRouter();
+  const onDelete = useUpdateAtom(deleteTodoAtom);
+  const mutateFn = async (id: string) => {
+    const res = await axios.delete(`http://localhost:4000/posts/${id}`);
+    return res.status;
+  };
+
+  const mutation = useMutation(mutateFn, {
+    onSuccess: (staus) => {
+      if (staus === 200) {
+        return push("/todos");
+      }
+    },
+  });
+
+  return { onDelete, mutation };
+};
 // ---- delete Todo end ----

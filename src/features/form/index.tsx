@@ -3,7 +3,7 @@ import { Button } from "../../components/button";
 import { Flex } from "../../components/flex";
 import TitleField from "../field/TitleField";
 import AuthorField from "../field/AurthorField";
-import { useAddTodo, useUpdateTodo } from "../../atoms/todo";
+import { useAddTodo, useDeleteTodo, useUpdateTodo } from "../../atoms/todo";
 import { useRouter } from "next/router";
 
 type Props = {
@@ -25,6 +25,11 @@ const Form = ({ isAddMode }: Props) => {
     mutation: { mutate: updateMutate },
   } = useUpdateTodo();
 
+  const {
+    onDelete,
+    mutation: { mutate },
+  } = useDeleteTodo();
+
   if (isLoading) {
     return <div>로딩 중..</div>;
   }
@@ -38,19 +43,30 @@ const Form = ({ isAddMode }: Props) => {
       <Flex dir="col" gap={16}>
         <TitleField />
         <AuthorField />
-        <Button
-          onClick={() => {
-            if (isAddMode) {
-              return addSubmit(addMutate);
-            } else {
-              if (id) {
-                return updateSubmit([updateMutate, id]);
+        <Flex gap={12}>
+          <Button
+            onClick={() => {
+              if (isAddMode) {
+                return addSubmit(addMutate);
+              } else {
+                if (id) {
+                  return updateSubmit([updateMutate, id]);
+                }
               }
-            }
-          }}
-        >
-          {isAddMode ? "추가" : "수정"}
-        </Button>
+            }}
+          >
+            {isAddMode ? "추가" : "수정"}
+          </Button>
+          <Button
+            onClick={() => {
+              if (id) {
+                onDelete([mutate, id?.toString()]);
+              }
+            }}
+          >
+            삭제하기
+          </Button>
+        </Flex>
       </Flex>
     </form>
   );

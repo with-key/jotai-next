@@ -1,38 +1,17 @@
 {
   "posts": [
     {
-      "title": "ㄱㅇㄹㄴㅁㅇㄹㄴㅇ",
-      "author": "ㄹㄴㅇㄹㄴㅇㄹ",
-      "id": 1
-    },
-    {
       "title": "누가 내 치즈를 옮겼을까?112",
       "author": "예상기3123",
       "id": 3
     },
     {
-      "title": "커피",
-      "author": "메가 커피",
-      "id": 4
-    },
-    {
-      "title": "json-server",
-      "author": "typicode",
-      "id": 5
-    },
-    {
-      "title": "테스트 입니다.",
-      "author": "새로운 투두를 추가했어요",
+      "title": "1231",
+      "author": "23123",
       "id": 6
     }
   ],
-  "comments": [
-    {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
-    }
-  ],
+  "comments": [],
   "profile": {
     "name": "typicode"
   }
