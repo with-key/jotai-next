@@ -1,41 +1,18 @@
 import axios from "axios";
-import { useUpdateAtom } from "jotai/utils";
 import { atom } from "jotai";
+import { useUpdateAtom } from "jotai/utils";
 import {
   UseMutateFunction,
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 import { Todo, TodoDto } from "../types/todo.type";
 
 // atoms
 export const idAtom = atom<number>(0);
 export const titleAtom = atom<string>("");
 export const authorAtom = atom<string>("");
-
-// --- update Todo ----
-export const updateTodoAtom = atom(null, (get, set, [mutate, id]) => {
-  const title = get(titleAtom);
-  const author = get(authorAtom);
-  console.log(id);
-  // mutate({ title, author });
-});
-export const useUpdateTodo = () => {
-  const set = useUpdateAtom(updateTodoAtom);
-  const mutation = useMutation(
-    async (data: Todo) => {
-      console.log(data);
-    },
-    {
-      onSuccess: (data) => {
-        console.log(data);
-      },
-    }
-  );
-
-  return { updateSubmit: set, mutation };
-};
-// ---- updete Todo end ----
 
 // ---- create Todo start ----
 export const addTodoAtom = atom(
@@ -95,3 +72,37 @@ export const useFetchTodo = (id: string | undefined) => {
   return { ...rest };
 };
 // ---- read Todo end ----
+
+// --- update Todo ----
+export const updateTodoAtom = atom(null, (get, set, [mutate, id]) => {
+  const title = get(titleAtom);
+  const author = get(authorAtom);
+  mutate({ title, author, id });
+});
+
+export const useUpdateTodo = () => {
+  const { push } = useRouter();
+  const set = useUpdateAtom(updateTodoAtom);
+  const mutation = useMutation(
+    async ({ id, ...todo }: Todo) => {
+      const res = await axios.put(`http://localhost:4000/posts/${id}`, todo);
+      return res.status;
+    },
+    {
+      onSuccess: (status) => {
+        if (status === 200) {
+          return push("/todos");
+        }
+      },
+      onError: () => {
+        alert("에러 발생");
+      },
+    }
+  );
+
+  return { updateSubmit: set, mutation };
+};
+// ---- updete Todo end ----
+
+// ---- delete Todo start ----
+// ---- delete Todo end ----

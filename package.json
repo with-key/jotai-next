@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "dev:server": "npx json-server ./data.json --port 4000",
     "lint": "next lint"
   },
   "dependencies": {

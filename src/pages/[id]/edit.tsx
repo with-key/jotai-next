@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 
 const Edit = () => {
   const {
-    push,
     query: { id },
   } = useRouter();
 
@@ -14,6 +13,7 @@ const Edit = () => {
   if (isLoading) {
     return <></>;
   }
+
   return (
     <>
       <Form isAddMode={false} />

@@ -1,8 +1,10 @@
+import { useRouter } from "next/router";
 import React from "react";
 import styled from "styled-components";
 import { useFetchTodos } from "../../atoms/todos";
 
 const Todos = () => {
+  const { push } = useRouter();
   const { todos, isLoading } = useFetchTodos();
 
   if (isLoading) {
@@ -11,7 +13,12 @@ const Todos = () => {
   return (
     <StList>
       {todos?.map((todo) => (
-        <StCard key={todo.id}>
+        <StCard
+          key={todo.id}
+          onClick={() => {
+            push(`/${todo.id}/edit`);
+          }}
+        >
           <div>{todo.id}</div>
           <div>{todo.author}</div>
           <div>{todo.title}</div>

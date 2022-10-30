@@ -3,16 +3,32 @@ import { Button } from "../../components/button";
 import { Flex } from "../../components/flex";
 import TitleField from "../field/TitleField";
 import AuthorField from "../field/AurthorField";
-import { useUpdateAtom } from "jotai/utils";
-import { addTodoAtom, useAddTodo } from "../../atoms/todo";
+import { useAddTodo, useUpdateTodo } from "../../atoms/todo";
+import { useRouter } from "next/router";
 
 type Props = {
   isAddMode: boolean;
 };
 
 const Form = ({ isAddMode }: Props) => {
-  const { mutate } = useAddTodo();
-  const submit = useUpdateAtom(addTodoAtom);
+  const {
+    query: { id },
+  } = useRouter();
+
+  const {
+    submit: addSubmit,
+    mutation: { mutate: addMutate, isLoading },
+  } = useAddTodo();
+
+  const {
+    updateSubmit,
+    mutation: { mutate: updateMutate },
+  } = useUpdateTodo();
+
+  if (isLoading) {
+    return <div>로딩 중..</div>;
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -24,7 +40,13 @@ const Form = ({ isAddMode }: Props) => {
         <AuthorField />
         <Button
           onClick={() => {
-            submit(mutate);
+            if (isAddMode) {
+              return addSubmit(addMutate);
+            } else {
+              if (id) {
+                return updateSubmit([updateMutate, id]);
+              }
+            }
           }}
         >
           {isAddMode ? "추가" : "수정"}
