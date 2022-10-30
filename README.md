@@ -1,34 +1,80 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## jotai + tanstack query
 
-## Getting Started
+### basic combination pattern
 
-First, run the development server:
+- 컴포넌트에서 atom getter를 하지 않고, atom 내부로 mutate를 주입하여 atom내부에서 mutate를 실행
+- 컴포넌트에서 getter로 `title`, `author` 값을 구독하고 있으면, 해당 값이 변경될때마다 해당 input외에 다른 컴포넌트까지 같이 리렌더링이 되기 때문에 위와 같이 처리해보려고 함
+- atom의 setter를 했을 때, atom 내부에서 현재 변경된 값을 `get()`으로 가져오고 setter의 파라미터로 주입된 `mutate`에 값들을 담아 실행됨
 
-```bash
-npm run dev
-# or
-yarn dev
+```ts
+// atoms
+export const idAtom = atom<number>(0);
+export const titleAtom = atom<string>("");
+export const authorAtom = atom<string>("");
+
+// Add Todo Action
+export const addTodoAtom = atom(
+  null,
+  (get, set, mutate: UseMutateFunction<void, unknown, TodoDto, unknown>) => {
+    const title = get(titleAtom);
+    const author = get(authorAtom);
+
+    if (title === "" || author === "") {
+      console.log("값이 비어있다.");
+    } else {
+      mutate({ title, author });
+      set(titleAtom, "");
+      set(authorAtom, "");
+    }
+  }
+);
+
+// Add Todo Mutation hook
+export const useAddTodo = () => {
+  const submit = useUpdateAtom(addTodoAtom);
+
+  const mutation = useMutation(async (todo: TodoDto) => {
+    const { data } = await axios.post("http://localhost:4000/posts", todo);
+    return data;
+  });
+
+  return { mutation, submit };
+};
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### In Component
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```ts
+const Form = ({ isAddMode }: Props) => {
+  const {
+    query: { id },
+  } = useRouter();
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+  const {
+    submit,
+    mutation: { mutate, isLoading },
+  } = useAddTodo();
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+      }}
+    >
+      <Flex dir="col" gap={16}>
+        <TitleField />
+        <AuthorField />
+        <Button
+          onClick={() => {
+            submit(mutate);
+          }}
+        >
+          {isAddMode ? "추가" : "수정"}
+        </Button>
+      </Flex>
+    </form>
+  );
+};
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+export default Form;
+```
