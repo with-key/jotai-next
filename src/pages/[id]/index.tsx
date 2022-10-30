@@ -1,17 +1,15 @@
 import React from "react";
 import { useRouter } from "next/router";
-import { useFetchTodo } from "../../atoms/todo";
+import { todoAtom, useFetchTodo } from "../../atoms/todo";
+import { useAtomValue } from "jotai";
 
 const Todo = () => {
   const {
     push,
     query: { id },
   } = useRouter();
-  const { isLoading, todo } = useFetchTodo(id?.toString());
-
-  if (isLoading) {
-    return <></>;
-  }
+  // const { isLoading } = useFetchTodo(id?.toString());
+  const todo = useAtomValue(todoAtom);
 
   return (
     <div>

@@ -19,6 +19,14 @@ export const idAtom = atom<number>(0);
 export const titleAtom = atom<string>("");
 export const authorAtom = atom<string>("");
 
+export const todoAtom = atom<Todo>((get) => {
+  const title = get(titleAtom);
+  const id = get(idAtom);
+  const author = get(authorAtom);
+
+  return { title, id, author };
+});
+
 // ---- create Todo start ----
 export const addTodoAtom = atom(
   null,
